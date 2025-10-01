@@ -1,0 +1,169 @@
+Lab-1: Understand your Distribution
+
+1. Find the distribution name, version, and release information (/etc/os-release, lsb_release -a). What’s the difference you see in both?
+
+$ cd etc
+$ cat os-release
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.3 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 24.04.3 LTS
+Release:        24.04
+Codename:       noble
+
+
+2. Check which package manager the system uses (which yum || which apt).
+
+$ apt --version
+apt 2.8.3 (amd64)
+
+
+3. Discover the kernel information of your system (uname –r).
+
+$ uname -r
+6.14.0-1011-aws
+
+4. Check how long the system has been running (uptime).
+
+$ uptime
+07:29:45 up  4:25,  1 user,  load average: 0.00, 0.00, 0.00
+
+
+
+
+Lab-2: Using man Pages
+
+1. Identify which section of the man pages documents file formats and conventions.
+
+$ man 5 passwd
+
+2. Use man ls and explain what the -r option shows. What are the other options it can be used with?
+
+$ man ls
+
+ -r, --reverse
+              reverse order while sorting
+
+3. With the help of –k and –K based keyword search methods, find the command that’s responsible for changing the age of passwords.
+
+$ man -k pass
+
+chage (1)            - change user password expiry information
+
+
+
+
+Lab-3: The Shell and Its Modes
+
+1. Identify which shell you are currently running (echo $SHELL).
+
+$ echo $SHELL
+/bin/bash
+
+2. Set the default editor for your shell as Vim.
+
+$ update-alternatives --config editor
+There are 4 choices for the alternative editor (providing /usr/bin/editor).
+
+  Selection    Path                Priority   Status
+------------------------------------------------------------
+* 0            /bin/nano            40        auto mode
+  1            /bin/ed             -100       manual mode
+  2            /bin/nano            40        manual mode
+  3            /usr/bin/vim.basic   30        manual mode
+  4            /usr/bin/vim.tiny    15        manual mode
+
+Press <enter> to keep the current choice[*], or type selection number: 3
+update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/editor (editor) in manual mode
+$ editor test.txt 
+
+
+3. Write a simple script named hello.sh that prints “Hello, <your-name>!” and run it.
+
+$ editor hello.sh
+echo "Hello, tharun!"
+$ chmod 700 hello.sh
+$ ./hello.sh
+Hello, tharun!
+ 
+
+
+
+Lab-4: Understanding the File System
+
+1. In /proc, find the file that shows system uptime.
+
+$ cd proc
+$ cat uptime
+23569.56 23434.47
+
+2. In /etc, find the file that stores the hostname.
+
+$ cd etc
+$ cat hostname
+ip-10-0-25-45
+
+3. In /var, find where log files are stored. Explore the different log files and let us know.
+
+$ cd var/log
+$ ls
+README            amazon      apt       btmp    cloud-init-output.log  dist-upgrade  dpkg.log  kern.log   lastlog  syslog   unattended-upgrades
+alternatives.log  apport.log  auth.log  chrony  cloud-init.log         dmesg         journal   landscape  private  sysstat  wtmp
+
+4. In /dev, test what /dev/null does (echo test > /dev/null).
+
+ubuntu@ip-10-0-25-45:/$ echo test
+test
+ubuntu@ip-10-0-25-45:/$ echo test > /dev/null
+
+nothing is printed
+
+5. Locate the current working directory of your shell process by inspecting /proc/<pid>/cwd. You can find the PID of your shell by running ps.
+
+$ ps
+PID TTY       TIME     CMD
+8901 pts/2    00:00:00 bash
+8593 pts/2    00:00:00 ps
+
+$ cd proc/8901/cwd
+
+
+
+
+Lab-5: System Capabilities
+
+1. Display CPU information from /proc/cpuinfo.
+
+$ cd proc
+$ cat cpuinfo
+
+2. Display memory information from /proc/meminfo.
+
+$ cd proc
+$ cat meminfo
+
+3. Count the number of processes currently running (ps -ef | wc -l).
+
+$ ps -ef | wc -l
+113
+
+4. Identify how many users are currently logged in (who).
+
+$ who
+ubuntu   pts/0        2025-09-01 07:14 (106.222.222.245)
+ubuntu   pts/1        2025-09-01 09:35 (106.222.222.245)
+ubuntu   pts/2        2025-09-01 09:36 (106.222.222.245)

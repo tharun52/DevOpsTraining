@@ -1,0 +1,182 @@
+File Backup Script
+Scenario:
+You are asked to create a script that protects important files by making backups. The script
+should accept a filename as input, generate a copy of the file with a .bak extension and a
+timestamp (so multiple backups don’t overwrite each other), and log the backup activity to a
+central logfile.
+
+echo "Enter File name : "
+read fname
+new_file=$fname-$(date +"%Y-%m-%d_%H-%M-%S").bak
+cp $fname $new_file
+sudo sh -c "echo '$fname backed up in $new_file' >> /var/log/file_backup.log"
+echo $new_file
+
+sudo cat /var/log/file_backup.log
+
+
+
+
+
+Log Cleaner
+Scenario:
+Your system generates large .log files in /var/tmp/. Left unmanaged, these logs consume
+disk space and affect performance. You need to write a script that automatically finds and
+deletes .log files older than 7 days, ensuring no newer logs are touched.
+
+datebefore7=$(date --date "7 days ago" +%s)
+count=0
+for file in /var/tmp/*; do
+        [ -e "$file" ] || continue
+        filetime=$(date -r "$file" +%s)
+        if [[ $filetime -lt $datebefore7 ]]; then
+                sudo rm -r $file
+                ((count++))
+        fi
+done
+echo "Files deleted : $count"
+
+
+
+
+
+
+Simple Monitoring
+Scenario:
+Operations teams need lightweight monitoring when resource-intensive tools are not available.
+Your script should check system CPU load from the uptime command every time it runs. If the
+load average is above 2.0, it should record an alert into a logfile with a timestamp.
+ 
+
+cpu=$(awk '{print $1}' /proc/loadavg)
+if (( $(echo "$cpu > 2.0" | bc -l) )); then
+        sudo sh -c 'echo "CPU exceeded more than 2.0 at $(date +%Y-%m-%d_%H-%M-%S)" >> /var/log/cpu_alert.log'
+fi
+cat /var/log/cpu_alert.log
+
+
+
+
+
+
+Bulk User Creation
+Scenario:
+Your company is onboarding 20 new developers. You need to provision accounts dev1 to
+dev20, add them to a dev group, and assign random passwords. The process must scale using
+automation rather than manual useradd. Passwords should be stored in a secure way (e.g., file
+with restricted permissions).
+
+for i in {1..20}; do
+        password=$RANDOM
+        username="dev$i"
+        if id "$username" >/dev/null 2>&1; then
+            echo "user $username already found"
+        else
+                sudo useradd $username
+                sudo usermod -aG dev $username
+                echo "$username:$password" | sudo chpasswd
+                echo "dev$i $password" >> "user_passwords$(date).txt"
+        fi
+done
+cat "user_passwords$(date).txt"
+
+
+Automated Archiver
+Scenario:
+A data folder at /srv/data/ must be backed up daily. Your script should compress the
+directory into a .tar.gz file named with the current date and move it to /backups/. Old
+archives older than 14 days must be deleted to prevent storage bloat.
+
+filename="backup/backup$(date +%F).tar.gz"
+echo $filename
+if [ -e "$filename" ]; then
+        echo 'Backup already done today'
+else
+        sudo tar czf "$filename" /srv/data
+        echo "file back at $filename"
+fi
+
+datebefore14=$(date --date "14 days ago" +%s)
+if [ -d "backup/" ]; then
+        for file in backup/*; do
+                filetime=$(date -r "$file" +%s)
+                if [[ $filetime -lt $datebefore14 ]]; then
+                        rm $file
+                        echo "Deleted $file"
+                fi
+        done
+else
+        echo 'No backup folder exists'
+fi
+
+
+
+Service Health Checker
+Scenario:
+Critical services like sshd (remote access) and nginx (web server) must always be available.
+Write a script that checks if these services are running. If a service is down, the script should
+restart it and log the recovery action with a timestamp.
+
+sudo systemctl stop nginx
+
+services=("nginx" "ssh")
+for i in "${services[@]}"; do
+        if systemctl is-active --quiet $i; then
+                echo "$i is already running"
+        else
+                sudo systemctl start $i
+                echo "Started $i"
+        fi
+done
+
+
+
+
+
+
+Secret Scanner
+Scenario:
+Your company’s source code must be checked for accidentally exposed secrets (like AWS
+keys). Build a script that scans through code repositories for sensitive patterns such as
+AWS_SECRET_KEY. The results must not print secrets on screen but instead be stored in a
+secure logfile with restricted access.
+
+echo "Enter directory you want to search:"
+read dir
+count=0
+
+for file in $(find "$dir" -type f); do
+        echo $file
+    if grep -qE '[a-zA-Z0-9+/]{40}' "$file"; then
+        sudo sh -c "echo 'AWS key found in $file' >> /var/log/key_alert.log"
+        (( count++ ))
+    fi
+done
+
+if (( count == 0 )); then
+    echo "No keys found"
+else
+    echo "$count files with keys found"
+fi
+
+
+echo "Enter directory you want to search:"
+read dir
+count=0
+
+# Loop through all files found recursively
+for file in $(find "$dir" -type f); do
+    echo "$file"
+    if grep -qE '[a-zA-Z0-9+/]{40}' "$file"; then
+        sudo sh -c "echo 'AWS key found in $file' >> /var/log/key_alert.log"
+        (( count++ ))
+    fi
+done
+
+if (( count == 0 )); then
+    echo "No keys found"
+else
+    echo "$count files with keys found"
+fi
+
+

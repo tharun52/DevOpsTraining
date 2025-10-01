@@ -1,0 +1,150 @@
+1.  A QA tester is hired on contract for exactly one week to test something on your
+    staging server. Following are the things you must provide him:
+    1. An user account called “qa” with login access to your server, but you don’t want to
+    trust yourself or anyone else to remember to disable the account once the week is
+    done.
+    2. You want the system itself to revoke access after the agreed time.
+
+$ sudo useradd qa
+$ sudo chage -E 2025-09-09 qa 
+$ sudo chage -l qa
+Last password change                                    : Sep 02, 2025
+Password expires                                        : never
+Password inactive                                       : never
+Account expires                                         : Sep 09, 2025
+Minimum number of days between password change          : 0
+Maximum number of days between password change          : 99999
+Number of days of warning before password expires       : 7
+
+OR 
+
+$ sudo useradd -e 2020-06-10 Test
+ 
+
+
+2.  You’re monitoring the server and notice high CPU usage. On investigation, you find a
+    background job running uncontrolled. You must:
+    1. Find the process and kill it.
+    2. Ensure it has been successfully killed. If not so, investigate further and try to kill it.
+
+$ yes > /dev/null &
+[1] 19872
+
+$ ps
+    PID TTY          TIME CMD
+  19802 pts/0    00:00:00 bash
+  19987 pts/0    00:00:01 yes
+  19988 pts/0    00:00:00 ps
+
+$ top
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                                                  
+  18177 root      20   0   18336  10420   6708 R  50.2   1.1 164:19.57 python3                                                                  
+  19872 ubuntu    20   0    6112   1592   1592 R  50.2   0.2   0:50.28 yes    
+
+$ kill 19872 
+OR 
+$ pkill yes 
+
+$ top
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                                                  
+  18177 root      20   0   18336  10420   6708 R  99.7   1.1 164:48.10 python3   
+
+$ ps
+    PID TTY          TIME CMD
+  19802 pts/0    00:00:00 bash
+  19990 pts/0    00:00:00 ps
+[1]+  Terminated              yes > /dev/null
+
+
+3.  Two engineers (u1, u2) are collaborating in /srv/shared. They both need to write files,
+    but neither should be able to delete the other’s files.
+    1. Create users u1 and u2 in your system.
+    2. Set up /srv/shared so both users can create files.
+    3. Enforce that only file owners can delete their files.
+
+$ sudo groupadd sharedproject
+$ sudo useradd -G sharedproject u1
+$ sudo useradd -G sharedproject u2
+$ sudo chown :sharedproject srv/shared/
+$ sudo chmod 1770 srv/shared/
+ubuntu@ip-10-0-25-45:~/srv/shared$ su u1
+Password: 
+$ echo "hello from u1" > hello1.txt
+$ exit
+ubuntu@ip-10-0-25-45:~/srv/shared$ su  u2
+Password: 
+$ echo "hello from u2" > hello2.txt
+$ rm hello1.txt
+rm: remove write-protected regular file 'hello1.txt'? y
+rm: cannot remove 'hello1.txt': Operation not permitted
+$ rm hello2.txt
+$ 
+
+4.  Imagine you're a system administrator tasked with monitoring the performance of
+    several servers running GNU+Linux in a data center. To effectively track CPU usage,
+    memory consumption, disk I/O, and network statistics. The node-exporter package is
+    already downloaded for you at /home/ec2-user/node_exporter.tar.gz. Your goal is to
+    place the binary in the right path, and create a systemd service to run it all the time.
+
+ubuntu@ip-10-0-25-45:~$ tar xvfz node_exporter.tar.gz
+ubuntu@ip-10-0-25-45:~$ sudo mv node_exporter-1.9.1.linux-amd64/node_exporter /usr/local/bin/
+ubuntu@ip-10-0-25-45:~$ sudo vim /etc/systemd/system/node_exporter.service
+ubuntu@ip-10-0-25-45:~$ sudo systemctl daemon-reload
+ubuntu@ip-10-0-25-45:~$ sudo systemctl enable node_exporter
+ubuntu@ip-10-0-25-45:~$ sudo systemctl start node_exporter
+ubuntu@ip-10-0-25-45:~$ sudo systemctl status node_exporter
+● node_exporter.service - Node Exporter
+     Loaded: loaded (/etc/systemd/system/node_exporter.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2025-09-02 12:32:32 UTC; 3s ago
+   Main PID: 21872 (node_exporter)
+      Tasks: 3 (limit: 1121)
+     Memory: 2.0M (peak: 2.2M)
+        CPU: 114ms
+     CGroup: /system.slice/node_exporter.service
+             └─21872 /usr/local/bin/node_exporter
+
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=time
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=timex
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=udp_queues
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=uname
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=vmstat
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=watchdog
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=xfs
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.646Z level=INFO source=node_exporter.go:141 msg=zfs
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.648Z level=INFO source=tls_config.go:347 msg="Listening on" addres>
+Sep 02 12:32:32 ip-10-0-25-45 node_exporter[21872]: time=2025-09-02T12:32:32.648Z level=INFO source=tls_config.go:350 msg="TLS is disabled." ht>
+
+
+5.  You’re working on a cloud-hosted VM and you find that your team is using a
+    password to gain sudo access. Your goal is to allow users to elevate privileges with
+    sudo without the root password and run any command. Ensure you only allow login
+    via SSH only with a private key for that user.
+
+$ su tharun
+    Password: 
+    $ sudo apt update
+    [sudo] password for tharun: 
+    tharun is not in the sudoers file.
+    $ exit
+$ sudo vim /etc/sudoers
+
+tharun ALL=(ALL:ALL) NOPASSWD:ALL
+
+$ su tharun
+$ sudo apt update
+Hit:1 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://us-east-1.ec2.archive.ubuntu.com/ubuntu noble-updates InRelease
+
+ 
+
+
+
+[Unit]
+Description=CPU Hog Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/cpu_hog.py
+
+[Install]
+WantedBy=multi-user.target

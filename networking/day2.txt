@@ -1,0 +1,295 @@
+1. Problem Statement
+Given the SMB server IP 98.81.69.119 and the shared path "shared", mount it using cli commands and find the task file related the socket programming
+
+$ smbclient //98.81.69.119/shared -N
+Try "help" to get a list of possible commands.
+smb: \> ls
+  .                                   D        0  Fri Sep 12 08:01:07 2025
+  ..                                  D        0  Wed Sep 10 08:48:30 2025
+  SocketProgramming_Tasks.pdf         N   613499  Fri Sep 12 08:01:07 2025
+
+                8310764 blocks of size 1024. 6575372 blocks available
+smb: \> get  SocketProgramming_Tasks.pdf
+getting file \SocketProgramming_Tasks.pdf of size 613499 as SocketProgramming_Tasks.pdf (59911.4 KiloBytes/sec) (average 59912.0 KiloBytes/sec)
+
+ 
+2. Problem Statement
+
+Task #1: The Missing Message Mystery
+Alice tries to send "HELLO WORLD" to Bob’s server. However, Bob only receives part of the message.
+As the detective, your job is to investigate why the message is incomplete and fix the issue so Bob receives the full string
+
+# server.py
+message = client_socket.recv(11)
+
+previously it was 8 but 'HELLO WORLD' has 11 characters
+so i changed it to 11 and it works
+
+output:
+% python3 client.py
+📤Alice sent: 'HELLO WORLD'
+
+%  python3 server.py
+🏠 Bob's server is listening...
+📨 Bob received: 'HELLO WORLD'
+
+
+Task #2: The Port Scanner Probe
+🧩 Scenario
+A detective always checks locked and unlocked doors. Similarly, you will create a simple port
+scanner that tests whether a given port on a host is open or closed
+
+# check_server.py
+import socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+hostname = input("Enter hostname : ")
+port = int(input("Enter port : "))
+    
+try:
+    s.connect((hostname, port))
+    print(f"Port {port} on {hostname} is Open")
+    s.close()
+except:
+    print(f"Port {port} on {hostname} is Close")
+
+output:
+
+% python3 check_server.py
+Enter hostname : google.com
+Enter port : 8000
+Port 8000 on google.com is Close
+% python3 check_server.py
+Enter hostname : localhost
+Enter port : 22
+Port 22 on localhost is Open
+
+
+Task #3: The Curl Detective Mystery
+🧩 Scenario
+Detectives often record every clue exactly as found. Similarly, you will build a Python server
+( server.py ) that accepts HTTP requests sent via curl and prints the raw request exactly
+as received
+
+
+% curl http://localhost:9090/test
+curl: (52) Empty reply from server
+
+% python3 curl_server.py
+Curl server is listening...
+'GET /test HTTP/1.1
+Host: localhost:9090
+User-Agent: curl/8.7.1
+Accept: */*
+
+
+
+% curl -X POST http://localhost:9090/test -d "Detective at work"
+curl: (52) Empty reply from server
+
+% python3 curl_server.py
+Curl server is listening...
+'POST /test HTTP/1.1
+Host: localhost:9090
+User-Agent: curl/8.7.1
+Accept: */*
+Content-Length: 17
+Content-Type: application/x-www-form-urlencoded
+
+Detective at work
+
+%  curl -X POST http://localhost:9090/bigdata -d "$(python3 -c "print('X'*500)")"
+curl: (52) Empty reply from server
+
+% python3 curl_server.py
+Curl server is listening...
+'POST /bigdata HTTP/1.1
+Host: localhost:9090
+User-Agent: curl/8.7.1
+Accept: */*
+Content-Length: 500
+Content-Type: application/x-www-form-urlencoded
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+
+3. Problem Statement
+You are provided with a bastion host that has a public IP address and a .pem key for SSH, along with a private application server that can only be accessed through the bastion. A MySQL RDS instance is also running inside the private subnet. You are expected to first connect to the bastion using the provided .pem file and then attempt to securely SSH into the private application server from there. Once inside the private instance, verify connectivity to the given RDS endpoint the MySQL client. 
+Note: As part of the task, you are expected to troubleshoot and resolve any issues you encounter while establishing SSH connectivity to the private instance or while reaching the MySQL RDS instance from it.
+
+$ ssh -i tharun_e.pem ubunut@34.205.85.198
+
+$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       Anywhere                  
+22/tcp (v6)                ALLOW       Anywhere (v6)      
+
+$ ssh -i /home/ubuntu/intern-key.pem ubuntu@10.0.2.70
+
+$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22                         ALLOW       10.0.1.0/24  
+
+$ mysql -u intern -p intern_lab
+Enter password: InternPass123!
+
+mysql> show tables;
++----------------------+
+| Tables_in_intern_lab |
++----------------------+
+| sample_data          |
++----------------------+
+1 row in set (0.00 sec)
+
+mysql> select * from sample_data;
++----+----------------------------------+---------------------+
+| id | name                             | created_at          |
++----+----------------------------------+---------------------+
+|  1 | Welcome to your lab environment! | 2025-09-11 13:53:07 |
++----+----------------------------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> exit
+
+
+
+$ mysql -h networking-lab-mysql.cuukwis7t1js.us-east-1.rds.amazonaws.com -P 3306 -u admin -p
+Enter password: LabPassword123~
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1155
+Server version: 8.0.42 Source distribution
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| networkingdb       |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.02 sec)
+
+mysql> exit
+
+
+4. Problem Statement
+Develop two simple applications running on different ports, for example one on port 5001 and another on port 5002, each returning a distinct response. Configure an Application Load Balancer (ALB) on port 8080 with path-based routing so that requests to /api are directed to the first application and requests to /app are directed to the second. Since the ALB may become a bottleneck, add a Network Load Balancer (NLB) using HAProxy in front of it, operating at Layer 4. The expected flow is:
+ 
+Flow: Client → NLB (L4) → ALB (L7) → Web servers
+ 
+Configure the NLB in TCP mode and test the behavior by sending requests through it. Use tools such as curl -v and tcpdump to observe and capture the traffic flow. Compare the behavior with direct access to the ALB. 
+Analyze why inconsistencies appear when the NLB is in TCP mode and HTTP mode
+ Finally, update the configuration to HTTP Mode and explain your findings
+
+
+$ cat server5001.py
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello! The app is running on port 5001"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001)
+
+$ cat server5002.py
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello from APP (port 5002)"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5002)
+
+cat /etc/systemd/system/server5001.service
+[Unit]
+Description=Flask App running on port 5001
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=/usr/bin/python3 /home/ubuntu/server5001.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+cat /etc/systemd/system/server5002.service
+[Unit]
+Description=Flask App running on port 5002
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=/usr/bin/python3 /home/ubuntu/server5002.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+in ALB
+
+Create it with two listerners that has a target group pointing to 5001 and 5002 to the same instance
+
+% curl http://tharun-alb-1723557133.us-east-1.elb.amazonaws.com:8080/api
+Hello! The app is running on port 5001
+
+% curl http://tharun-alb-1723557133.us-east-1.elb.amazonaws.com:8080/app
+Hello from APP (port 5002)
+
+
+
+
+now create a HAProxy instance that acts has NLB
+
+in the instance
+
+$ sudo apt-get install haproxy -y
+
+
+
+add these lines inside /etc/haproxy/haproxy.cfg
+
+frontend nlb_frontend
+    bind *:80
+    default_backend alb_backend
+
+backend alb_backend
+    option httpchk GET /
+    server alb  tharun-alb-1723557133.us-east-1.elb.amazonaws.com:8080 check
+
+$ sudo systemctl restart haproxy
+
+now when i do 
+
+$ curl http://44.222.153.15/api
+Hello! The app is running on port 5001
+
+$ curl http://44.222.153.15/app
+Hello from APP (port 5002)
+x
+
+

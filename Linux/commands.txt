@@ -1,0 +1,61 @@
+In DB VM:
+
+openssl genrsa 2048 > ca-key.pem
+
+openssl req -new -x509 -nodes -days 3650 \
+    -key ca-key.pem \
+    -out ca.pem \
+    -subj "/CN=MySQL-CA"
+
+
+Server Certificate
+
+openssl genrsa 2048 > server-key.pem
+
+openssl req -new -key server-key.pem -out server-req.pem -subj "/CN=$(hostname)"
+
+openssl x509 -req -in server-req.pem -days 3650 \
+    -CA ca.pem -CAkey ca-key.pem -set_serial 01 \
+    -out server-cert.pem
+
+
+openssl genrsa 2048 > web-client-key.pem
+
+openssl req -new -key web-client-key.pem \
+    -out web-client-req.pem \
+    -subj "/CN=ip-10-0-25-111.ec2.internal"
+
+openssl x509 -req -in web-client-req.pem -days 3650 \
+    -CA ca.pem -CAkey ca-key.pem -set_serial 02 \
+    -out web-client-cert.pem
+
+
+/etc/mysql/mysql.conf.d/mysqld.cnf:
+
+[mysqld]
+ssl-ca=/etc/mysql/ssl/ca.pem
+ssl-cert=/etc/mysql/ssl/server-cert.pem
+ssl-key=/etc/mysql/ssl/server-key.pem
+bind-address=10.0.0.146
+
+sudo systemctl restart mysql
+
+
+In Web VM:
+
+openssl x509 -in /etc/mysql/ssl/web-client-cert.pem -noout -subject -issuer
+
+output:
+    subject=CN = ip-10-0-25-111.ec2.internal
+    issuer=CN = MySQL-CA
+
+
+Inside DB VM SQL
+
+CREATE USER 'dev2'@'ip-10-0-25-111.ec2.internal'
+IDENTIFIED BY 'Developer_202'
+REQUIRE SUBJECT '/CN=ip-10-0-25-111.ec2.internal'
+AND ISSUER '/CN=MySQL-CA';
+
+GRANT ALL PRIVILEGES ON *.* TO 'dev2'@'ip-10-0-25-111.ec2.internal';
+FLUSH PRIVILEGES;

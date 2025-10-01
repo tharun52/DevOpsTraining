@@ -1,0 +1,2 @@
+$hname = hostname
+$ipadress = 

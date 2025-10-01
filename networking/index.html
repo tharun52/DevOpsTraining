@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Racing Universe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+    <style>
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #e10600, #ffffff, #00d2be);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .track-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 5s linear forwards;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .car-animation {
+            animation: drive 8s linear infinite;
+        }
+        @keyframes drive {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100vw); }
+        }
+    </style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+    <!-- Vanta.js Background -->
+    <div id="vanta-bg" class="fixed top-0 left-0 w-full h-full -z-10"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-black bg-opacity-90 z-50 shadow-xl">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold gradient-text">F1 UNIVERSE</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="hover:text-red-600 transition duration-300">Home</a>
+                <a href="#teams" class="hover:text-red-600 transition duration-300">Teams</a>
+                <a href="#drivers" class="hover:text-red-600 transition duration-300">Drivers</a>
+                <a href="#calendar" class="hover:text-red-600 transition duration-300">Calendar</a>
+                <a href="#history" class="hover:text-red-600 transition duration-300">History</a>
+                <a href="#tech" class="hover:text-red-600 transition duration-300">Technology</a>
+            </div>
+            <button class="md:hidden">
+                <i data-feather="menu"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+        <div class="container mx-auto px-6 z-10 text-center" data-aos="fade-up">
+            <h1 class="text-6xl md:text-8xl font-bold mb-6 gradient-text">FORMULA 1</h1>
+            <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto">The pinnacle of motorsport where cutting-edge technology meets human excellence</p>
+            <div class="flex justify-center space-x-6">
+                <a href="#teams" class="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-full font-bold transition duration-300">Explore Teams</a>
+                <a href="#calendar" class="px-8 py-3 border-2 border-white hover:bg-white hover:text-black rounded-full font-bold transition duration-300">Race Calendar</a>
+            </div>
+        </div>
+        <div class="absolute bottom-0 w-full">
+            <svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="#e10600" fill-opacity="0.5" class="shape-fill"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" fill="#e10600" fill-opacity="0.7" class="shape-fill"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="#e10600" class="shape-fill"></path>
+            </svg>
+        </div>
+        <div class="car-animation absolute bottom-20 left-0">
+            <img src="https://media.formula1.com/image/upload/content/dam/fom-website/manual/Misc/2023manual/2023Races/Bahrain/Sunday/1310231015.jpg" alt="F1 Car" class="w-64 h-auto transform -scale-x-100">
+        </div>
+    </section>
+
+    <!-- Teams Section -->
+    <section id="teams" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl md:text-5xl font-bold mb-16 text-center" data-aos="fade-up">F1 TEAMS 2023</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Team Card 1 -->
+                <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl hover:shadow-red-500/50 transition duration-500" data-aos="fade-up" data-aos-delay="100">
+                    <div class="h-48 overflow-hidden">
+                        <img src="http://static.photos/red/1024x576/1" alt="Red Bull Racing" class="w-full h-full object-cover transform hover:scale-110 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Red Bull Racing</h3>
+                        <p class="text-gray-400 mb-4">Oracle Red Bull Racing is currently dominating the championship with Max Verstappen and Sergio Pérez.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-red-500 font-bold">1st in WCC</span>
+                            <a href="#" class="text-white hover:text-red-500 transition duration-300">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Card 2 -->
+                <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl hover:shadow-red-500/50 transition duration-500" data-aos="fade-up" data-aos-delay="200">
+                    <div class="h-48 overflow-hidden">
+                        <img src="http://static.photos/silver/1024x576/1" alt="Mercedes" class="w-full h-full object-cover transform hover:scale-110 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Mercedes-AMG</h3>
+                        <p class="text-gray-400 mb-4">The former dominant team now chasing Red Bull with Lewis Hamilton and George Russell.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-red-500 font-bold">2nd in WCC</span>
+                            <a href="#" class="text-white hover:text-red-500 transition duration-300">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Card 3 -->
+                <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl hover:shadow-red-500/50 transition duration-500" data-aos="fade-up" data-aos-delay="300">
+                    <div class="h-48 overflow-hidden">
+                        <img src="http://static.photos/red/1024x576/2" alt="Ferrari" class="w-full h-full object-cover transform hover:scale-110 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Scuderia Ferrari</h3>
+                        <p class="text-gray-400 mb-4">The most iconic team in F1 history with Charles Leclerc and Carlos Sainz.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-red-500 font-bold">3rd in WCC</span>
+                            <a href="#" class="text-white hover:text-red-500 transition duration-300">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- More teams would go here -->
+            </div>
+
+            <div class="text-center mt-16" data-aos="fade-up">
+                <a href="#" class="inline-block px-8 py-3 bg-red-600 hover:bg-red-700 rounded-full font-bold transition duration-300">View All Teams</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Drivers Section -->
+    <section id="drivers" class="py-20 bg-gray-900 relative">
+        <div class="absolute inset-0 opacity-20">
+            <div id="vanta-drivers" class="w-full h-full"></div>
+        </div>
+        <div class="container mx-auto px-6 relative">
+            <h2 class="text-4xl md:text-5xl font-bold mb-16 text-center" data-aos="fade-up">TOP DRIVERS</h2>
+            
+            <div class="flex flex-wrap justify-center gap-8">
+                <!-- Driver 1 -->
+                <div class="w-full md:w-1/2 lg:w-1/3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bg-black bg-opacity-70 rounded-xl p-6 shadow-xl hover:shadow-red-500/50 transition duration-500 h-full">
+                        <div class="flex items-center mb-6">
+                            <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-red-600">
+                                <img src="https://media.formula1.com/image/upload/content/dam/fom-website/drivers/2023Drivers/verstappen.jpg" alt="Max Verstappen" class="w-full h-full object-cover">
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold">Max Verstappen</h3>
+                                <p class="text-red-500">Red Bull Racing</p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Race Wins</span>
+                                <span class="font-bold">42</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-red-600 h-2 rounded-full" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Pole Positions</span>
+                                <span class="font-bold">28</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-red-600 h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Championships</span>
+                                <span class="font-bold">3</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-red-600 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                            View Profile <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Driver 2 -->
+                <div class="w-full md:w-1/2 lg:w-1/3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bg-black bg-opacity-70 rounded-xl p-6 shadow-xl hover:shadow-red-500/50 transition duration-500 h-full">
+                        <div class="flex items-center mb-6">
+                            <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-400">
+                                <img src="https://media.formula1.com/image/upload/content/dam/fom-website/drivers/2023Drivers/hamilton.jpg" alt="Lewis Hamilton" class="w-full h-full object-cover">
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold">Lewis Hamilton</h3>
+                                <p class="text-blue-400">Mercedes-AMG</p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Race Wins</span>
+                                <span class="font-bold">103</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-blue-400 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Pole Positions</span>
+                                <span class="font-bold">104</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-blue-400 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Championships</span>
+                                <span class="font-bold">7</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-blue-400 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <a href="#" class="text-blue-400 hover:text-blue-300 transition duration-300 flex items-center">
+                            View Profile <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Driver 3 -->
+                <div class="w-full md:w-1/2 lg:w-1/3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="bg-black bg-opacity-70 rounded-xl p-6 shadow-xl hover:shadow-red-500/50 transition duration-500 h-full">
+                        <div class="flex items-center mb-6">
+                            <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-yellow-400">
+                                <img src="https://media.formula1.com/image/upload/content/dam/fom-website/drivers/2023Drivers/alonso.jpg" alt="Fernando Alonso" class="w-full h-full object-cover">
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold">Fernando Alonso</h3>
+                                <p class="text-yellow-400">Aston Martin</p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Race Wins</span>
+                                <span class="font-bold">32</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Pole Positions</span>
+                                <span class="font-bold">22</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-400">Championships</span>
+                                <span class="font-bold">2</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        <a href="#" class="text-yellow-400 hover:text-yellow-300 transition duration-300 flex items-center">
+                            View Profile <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16" data-aos="fade-up">
+                <a href="#" class="inline-block px-8 py-3 bg-red-600 hover:bg-red-700 rounded-full font-bold transition duration-300">View All Drivers</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calendar Section -->
+    <section id="calendar" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl md:text-5xl font-bold mb-16 text-center" data-aos="fade-up">2023 RACE CALENDAR</h2>
+            
+            <div class="max-w-4xl mx-auto">
+                <!-- Race 1 -->
+                <div class="mb-10" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex flex-col md:flex-row items-start md:items-center bg-gray-900 rounded-xl overflow-hidden shadow-xl hover:shadow-red-500/50 transition duration-500">
+                        <div class="w-full md:w-1/3 h-48">
+                            <img src="https://media.formula1.com/image/upload/content/dam/fom-website/manual/Misc/2023manual/2023Races/Bahrain/Sunday/1310231015.jpg" alt="Bahrain GP" class="w-full h-full object-cover">
+                        </div>
+                        <div class="w-full md:w-2/3 p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-1">Bahrain Grand Prix</h3>
+                                    <p class="text-gray-400 mb-3">Bahrain International Circuit</p>
+                                </div>
+                                <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">Completed</span>
+                            </div>
+                            <div class="flex flex-wrap gap-4 mt-4">
+                                <div class="flex items-center">
+                                    <i data-feather="calendar" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>March 5, 2023</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i data-feather="clock" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>15:00 Local Time</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i data-feather="map-pin" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>Sakhir, Bahrain</span>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                                    Race Highlights <i data-feather="play" class="ml-2 w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Race 2 -->
+                <div class="mb-10" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex flex-col md:flex-row items-start md:items-center bg-gray-900 rounded-xl overflow-hidden shadow-xl hover:shadow-red-500/50 transition duration-500">
+                        <div class="w-full md:w-1/3 h-48">
+                            <img src="https://media.formula1.com/image/upload/content/dam/fom-website/manual/Misc/2023manual/2023Races/SaudiArabia/Sunday/1903231015.jpg" alt="Saudi Arabian GP" class="w-full h-full object-cover">
+                        </div>
+                        <div class="w-full md:w-2/3 p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-1">Saudi Arabian Grand Prix</h3>
+                                    <p class="text-gray-400 mb-3">Jeddah Corniche Circuit</p>
+                                </div>
+                                <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">Completed</span>
+                            </div>
+                            <div class="flex flex-wrap gap-4 mt-4">
+                                <div class="flex items-center">
+                                    <i data-feather="calendar" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>March 19, 2023</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i data-feather="clock" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>20:00 Local Time</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i data-feather="map-pin" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>Jeddah, Saudi Arabia</span>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                                    Race Highlights <i data-feather="play" class="ml-2 w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Race 3 -->
+                <div class="mb-10" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex flex-col md:flex-row items-start md:items-center bg-gray-900 rounded-xl overflow-hidden shadow-xl hover:shadow-red-500/50 transition duration-500">
+                        <div class="w-full md:w-1/3 h-48">
+                            <img src="https://media.formula1.com/image/upload/content/dam/fom-website/manual/Misc/2023manual/2023Races/Australia/Sunday/0204231015.jpg" alt="Australian GP" class="w-full h-full object-cover">
+                        </div>
+                        <div class="w-full md:w-2/3 p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-1">Australian Grand Prix</h3>
+                                    <p class="text-gray-400 mb-3">Albert Park Circuit</p>
+                                </div>
+                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">Upcoming</span>
+                            </div>
+                            <div class="flex flex-wrap gap-4 mt-4">
+                                <div class="flex items-center">
+                                    <i data-feather="calendar" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>April 2, 2023</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i data-feather="clock" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>15:00 Local Time</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i data-feather="map-pin" class="w-5 h-5 mr-2 text-red-500"></i>
+                                    <span>Melbourne, Australia</span>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                                    Event Details <i data-feather="info" class="ml-2 w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16" data-aos="fade-up">
+                <a href="#" class="inline-block px-8 py-3 bg-red-600 hover:bg-red-700 rounded-full font-bold transition duration-300">Full Calendar</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="tech" class="py-20 bg-gray-900 relative">
+        <div class="absolute inset-0 opacity-20">
+            <div id="vanta-tech" class="w-full h-full"></div>
+        </div>
+        <div class="container mx-auto px-6 relative">
+            <h2 class="text-4xl md:text-5xl font-bold mb-16 text-center" data-aos="fade-up">F1 TECHNOLOGY</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <!-- Tech Card 1 -->
+                <div class="bg-black bg-opacity-70 rounded-xl p-8 shadow-xl hover:shadow-red-500/50 transition duration-500" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-red-500 mb-4">
+                        <i data-feather="cpu" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Power Units</h3>
+                    <p class="text-gray-400 mb-6">Modern F1 power units are hybrid systems combining a 1.6L V6 turbocharged internal combustion engine with energy recovery systems, achieving over 50% thermal efficiency.</p>
+                    <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                        Learn More <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Tech Card 2 -->
+                <div class="bg-black bg-opacity-70 rounded-xl p-8 shadow-xl hover:shadow-red-500/50 transition duration-500" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-red-500 mb-4">
+                        <i data-feather="wind" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Aerodynamics</h3>
+                    <p class="text-gray-400 mb-6">F1 cars generate enormous downforce through complex aerodynamic surfaces, with teams spending thousands of hours in wind tunnels and CFD simulations to optimize performance.</p>
+                    <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                        Learn More <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Tech Card 3 -->
+                <div class="bg-black bg-opacity-70 rounded-xl p-8 shadow-xl hover:shadow-red-500/50 transition duration-500" data-aos="fade-up" data-aos-delay="300">
+                    <div class="text-red-500 mb-4">
+                        <i data-feather="shield" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Safety Innovations</h3>
+                    <p class="text-gray-400 mb-6">From the Halo device to crash structures and fireproof materials, F1 has pioneered safety technologies that have saved lives and influenced road car development.</p>
+                    <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                        Learn More <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Tech Card 4 -->
+                <div class="bg-black bg-opacity-70 rounded-xl p-8 shadow-xl hover:shadow-red-500/50 transition duration-500" data-aos="fade-up" data-aos-delay="400">
+                    <div class="text-red-500 mb-4">
+                        <i data-feather="radio" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Telemetry & Data</h3>
+                    <p class="text-gray-400 mb-6">F1 cars generate over 1 million data points per second, with teams analyzing this information in real-time to make strategic decisions during races.</p>
+                    <a href="#" class="text-red-500 hover:text-red-400 transition duration-300 flex items-center">
+                        Learn More <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- History Section -->
+    <section id="history" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl md:text-5xl font-bold mb-16 text-center" data-aos="fade-up">F1 HISTORY</h2>
+            
+            <div class="max-w-4xl mx-auto">
+                <!-- Timeline -->
+                <div class="relative">
+                    <!-- Timeline line -->
+                    <div class="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-red-600"></div>
+                    
+                    <!-- Timeline item 1 -->
+                    <div class="mb-16 md:flex justify-between items-center w-full" data-aos="fade-up" data-aos-delay="100">
+                        <div class="order-1 md:w-5/12"></div>
+                        <div class="order-1 md:w-5/12 px-1 py-4 text-right">
+                            <h3 class="text-2xl font-bold mb-2">1950: The Beginning</h3>
+                            <p class="text-gray-400">The first Formula One World Championship race was held at Silverstone, UK, with Giuseppe Farina winning the inaugural championship.</p>
+                        </div>
+                        <div class="order-1 hidden md:flex md:w-2/12 justify-center">
+                            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                                <i data-feather="flag" class="w-4 h-4 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline item 2 -->
+                    <div class="mb-16 md:flex justify-between items-center w-full" data-aos="fade-up" data-aos-delay="200">
+                        <div class="order-1 md:w-5/12 px-1 py-4">
+                            <h3 class="text-2xl font-bold mb-2">1960s: British Dominance</h3>
+                            <p class="text-gray-400">Teams like Lotus, Cooper, and BRM revolutionized car design with rear-engine layouts, while drivers like Jim Clark and Graham Hill dominated.</p>
+                        </div>
+                        <div class="order-1 hidden md:flex md:w-2/12 justify-center">
+                            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                                <i data-feather="award" class="w-4 h-4 text-white"></i>
+                            </div>
+                        </div>
+                        <div class="order-1 md:w-5/12"></div>
+                    </div>
+
+                    <!-- Timeline item 3 -->
+                    <div class="mb-16 md:flex justify-between items-center w-full" data-aos="fade-up" data-aos-delay="300">
+                        <div class="order-1 md:w-5/12"></div>
+                        <div class="order-1 md:w-5/12 px-1 py-4 text-right">
+                            <h3 class="text-2xl font-bold mb-2">1980s: Turbo Era</h3>
+                            <p class="text-gray-400">Turbocharged engines producing over 1,000 horsepower dominated, with legendary battles between Prost, Senna, Piquet, and Mansell.</p>
+                        </div>
+                        <div class="order-1 hidden md:flex md:w-2/12 justify-center">
+                            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                                <i data-feather="zap" class="w-4 h-4 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline item 4 -->
+                    <div class="mb-16 md:flex justify-between items-center w-full" data-aos="fade-up" data-aos-delay="400">
+                        <div class="order-1 md:w-5/12 px-1 py-4">
+                            <h3 class="text-2xl font-bold mb-2">2000s: Schumacher Era</h3>
+                            <p class="text-gray-400">Michael Schumacher and Ferrari dominated, winning five consecutive championships from 2000-2004, setting numerous records.</p>
+                        </div>
+                        <div class="order-1 hidden md:flex md:w-2/12 justify-center">
+                            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                                <i data-feather="star" class="w-4 h-4 text-white"></i>
+                            </div>
+                        </div>
+                        <div class="order-1 md:w-5/12"></div>
+                    </div>
+
+                    <!-- Timeline item 5 -->
+                    <div class="mb-16 md:flex justify-between items-center w-full" data-aos="fade-up" data-aos-delay="500">
+                        <div class="order-1 md:w-5/12"></div>
+                        <div class="order-1 md:w-5/12 px-1 py-4 text-right">
+                            <h3 class="text-2xl font-bold mb-2">2014-2021: Hybrid Era</h3>
+                            <p class="text-gray-400">The introduction of hybrid power units saw Mercedes dominate, with Lewis Hamilton equaling Schumacher's seven championships.</p>
+                        </div>
+                        <div class="order-1 hidden md:flex md:w-2/12 justify-center">
+                            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                                <i data-feather="battery" class="w-4 h-4 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-20 bg-gradient-to-r from-red-900 to-black relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div id="vanta-newsletter" class="w-full h-full"></div>
+        </div>
+        <div class="container mx-auto px-6 relative">
+            <div class="max-w-4xl mx-auto text-center" data-aos="fade-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Stay Updated with F1 News</h2>
+                <p class="text-xl text-gray-300 mb-10">Subscribe to our newsletter for the latest race results, team news, and exclusive content.</p>
+                
+                <form class="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+                    <input type="email" placeholder="Your email address" class="flex-grow px-6 py-3 rounded-full bg-black bg-opacity-50 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600 text-white">
+                    <button type="submit" class="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-full font-bold transition duration-300">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-8 md:mb-0">
+                    <h3 class="text-2xl font-bold gradient-text mb-4">F1 UNIVERSE</h3>
+                    <p class="text-gray-400 max-w-md">The ultimate destination for Formula 1 fans. News, results, statistics, and in-depth analysis of the pinnacle of motorsport.</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-lg font-bold mb-4">Navigation</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#home" class="text-gray-400 hover:text-red-500 transition duration-300">Home</a></li>
+                            <li><a href="#teams" class="text-gray-400 hover:text-red-500 transition duration-300">Teams</a></li>
+                            <li><a href="#drivers" class="text-gray-400 hover:text-red-500 transition duration-300">Drivers</a></li>
+                            <li><a href="#calendar" class="text-gray-400 hover:text-red-500 transition duration-300">Calendar</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold mb-4">Resources</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">News</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">Standings</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">Results</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">Statistics</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold mb-4">Connect</h4>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">
+                                <i data-feather="facebook" class="w-5 h-5"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">
+                                <i data-feather="twitter" class="w-5 h-5"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">
+                                <i data-feather="instagram" class="w-5 h-5"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-red-500 transition duration-300">
+                                <i data-feather="youtube" class="w-5 h-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 mb-4 md:mb-0">© 2023 F1 Universe. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-red-500 transition duration-300">Privacy Policy</a>
+                    <a href="#" class="text-gray-500 hover:text-red-500 transition duration-300">Terms of Service</a>
+                    <a href="#" class="text-gray-500 hover:text-red-500 transition duration-300">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Initialize Vanta.js backgrounds
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xe10600,
+            backgroundColor: 0x0,
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 18.00
+        });
+
+        VANTA.GLOBE({
+            el: "#vanta-drivers",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xe10600,
+            color2: 0xffffff,
+            size: 0.80,
+            backgroundColor: 0x0
+        });
+
+        VANTA.WAVES({
+            el: "#vanta-tech",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xe10600,
+            shininess: 35.00,
+            waveHeight: 15.00,
+            waveSpeed: 0.80,
+            zoom: 0.75
+        });
+
+        VANTA.GLOBE({
+            el: "#vanta-newsletter",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xe10600,
+            color2: 0xffffff,
+            size: 0.80,
+            backgroundColor: 0x0
+        });
+
+        // Replace feather icons
+        feather.replace();
+
+        // Track animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const trackPath = document.querySelector('.track-path');
+            if (trackPath) {
+                setTimeout(() => {
+                    trackPath.style.strokeDashoffset = '0';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>

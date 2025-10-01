@@ -1,0 +1,104 @@
+Lab-1: Compromised Private Key
+
+The private key that you used to login to your instance is compromised. Your goal is to change the key to a new one as soon as possible. Encrypt the key with a passphrase during its generation for an added layer of security. Change the SSH port on the remote machine from the default port 22 to 27243. Add SSH Configuration on your Mac to use this new port by default when to connect to the instance.
+
+$ ssh-keygen -t rsa -C "newKey"
+$ sudo cat ~/.ssh/newKey.pub >> ~/.ssh/authorized_keys
+$ sudo vim /etc/ssh/sshd_config
+
+% scp -i Tharun_E.pem ubuntu@54.205.178.71:/home/ubuntu/.ssh/newKey ./newKey.pem
+% chmod 600 newKey.pem  
+
+% vim ~/.ssh/config
+Host linux_training
+    HostName 44.203.37.72
+    User ubuntu
+    Port 27243
+    IdentityFile /Users/tharun52/Documents/programming/DevopsTraining/Linux/Tharun_E.pem
+% ssh linux_training
+
+
+Lab-2: Custom DNS Entry
+
+There is a website running at 13.222.131.35 over port 80. The application (imaginary) in your system connects to it with a DNS name, not its IP address. Configure your compute instance to successfully resolve the DNS name (choose a DNS name of your own). Before that, check whether the server exists by pinging it. Check whether your compute instance is able to resolve the DNS name.
+
+$ curl 13.222.131.35
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PRESIDIO Academy Batch-2025</title>
+  </head>
+  <body style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:system-ui;">
+    <h1>PRESIDIO Academy Batch-2025 Hands-on Assignment</h1>
+    <em>If you see visited this page with the DNS name, it means your machine is able to resolve the DNS name locally.</em>
+  </body>
+</html>
+
+$ cd /etc/
+$ sudo vim hosts
+
+$ curl example.com
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PRESIDIO Academy Batch-2025</title>
+  </head>
+  <body style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:system-ui;">
+    <h1>PRESIDIO Academy Batch-2025 Hands-on Assignment</h1>
+    <em>If you see visited this page with the DNS name, it means your machine is able to resolve the DNS name locally.</em>
+  </body>
+</html>
+
+Lab-3: Zipping Files
+
+Your audit team requires you to provide the log files in your system. Compress the folder /var/log/ as a tar ball and store it to /var/. Copy it to anyone of your friends' machine with scp and share the screenshot of it in your assignment.
+
+$ tar -czvf tharun_log_files.taz.gz /var/log/
+
+$ scp -i ~/.ssh/newKey tharun_log_files.taz.gz ubuntu@13.218.68.106:/home/ubuntu/
+
+
+Lab-4: Firewall Management
+
+You have previously configured SSH to allow connections only in port 27243. Use your system’s firewall to block any incoming connections on port 22 and allow incoming connection on port 27243 only from your computer.
+
+$ sudo vim /etc/ssh/sshd_config
+
+127.0.0.1
+
+$ sudo ufw status 
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp (OpenSSH)           ALLOW IN    Anywhere                  
+22/tcp                     DENY IN     Anywhere                  
+22                         DENY IN     Anywhere                  
+27243                      DENY IN     Anywhere                  
+22/tcp (OpenSSH (v6))      ALLOW IN    Anywhere (v6)             
+22/tcp (v6)                DENY IN     Anywhere (v6)             
+22 (v6)                    DENY IN     Anywhere (v6)             
+27243 (v6)                 DENY IN     Anywhere (v6)           
+
+$ sudo ufw delete 1
+Deleting:
+ allow OpenSSH
+Proceed with operation (y|n)? y
+Rule deleted
+
+$ sudo allow from 106.222.222.169 to any port 27243
+
+
+
+
+Lab-5: Package Management
+
+Update and upgrade your system with the default package manager in your system. Install “cmatrix”, but before installing, get the description of the package. Finally, find the easter egg in your package manager
+
+$ sudo apt update
+$ apt show cmatrix
+
+

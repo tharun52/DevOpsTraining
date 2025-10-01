@@ -1,0 +1,157 @@
+Day 1 Tasks
+ 
+1. Problem Statement
+You are given the IP block 172.16.0.0/20. Create 3 subnets from this block so that each subnet has at least 200 usable IP addresses.
+For any 3 subnets you create, provide:
+Subnet mask
+Network address
+Broadcast address
+Usable IP range
+Number of usable hosts
+ 
+to get 200 usable ip, 
+    2^x >= 200
+    so x is 8 (2^8 = 256)
+
+    so subnet-mask = total-subnet-x
+       subnet-mask = 32-8
+       subnet-mask = 24
+
+172.16.0.0/24
+
+1.) Network address        : 172.16.0.0
+    Broadcast address      : 172.16.0.255
+    Usable IP range        : 172.16.0.1-254
+    Number of usable hosts : 2^8-2 = 256-2 = 254
+
+2.) Network address        : 172.16.1.0
+    Broadcast address      : 172.16.1.255
+    Usable IP range        : 172.16.1.1-254
+    Number of usable hosts : 2^8-2 = 256-2 = 254
+
+3.) Network address        : 172.16.2.0
+    Broadcast address      : 172.16.2.255
+    Usable IP range        : 172.16.2.1-254
+    Number of usable hosts : 2^8-2 = 256-2 = 254
+
+2. Problem Statement
+You are given the IP block 172.16.0.0/20. Subnet this block to satisfy the following requirements:
+Subnet A: needs at least 500 usable IP addresses
+Subnet B: needs at least 200 usable IP addresses
+Subnet C: needs at least 50 usable IP addresses
+Remember that “at least” does not mean you can waste space by oversizing all subnets. Choose the smallest subnet mask that still satisfies each requirement. For each subnet, provide:
+Subnet mask
+Network address
+Broadcast address
+Usable IP range
+Number of usable hosts
+ 
+Subnet A:
+to get 500 usable ip, 
+    2^x >= 500
+    so x is 9 (2^9 = 510)
+
+    so subnet-mask = total-subnet-x
+       subnet-mask = 32-9
+       subnet-mask = 23
+    
+
+    Network address        : 172.16.0.0
+    Broadcast address      : 172.16.1.255
+    Usable IP range        : 172.16.0.1-172.16.1.254
+    Number of usable hosts : 2^9-2 = 512-2 = 512
+
+Subnet B: 
+to get 200 usable ip, 
+    2^x >= 200
+    so x is 8 (2^8 = 256)
+
+    so subnet-mask = total-subnet-x
+       subnet-mask = 32-8
+       subnet-mask = 24
+
+    Network address        : 172.16.2.0
+    Broadcast address      : 172.16.2.255
+    Usable IP range        : 172.16.2.1-172.16.2.254
+    Number of usable hosts : 2^8-2 = 256-2 = 254
+
+Subnet C:
+to get 50 usable ip, 
+    2^x >= 50
+    so x is 6 (2^6 = 64)
+
+    so subnet-mask = total-subnet-x
+       subnet-mask = 32-6
+       subnet-mask = 26
+
+    Network address        : 172.16.3.0
+    Broadcast address      : 172.16.3.64
+    Usable IP range        : 172.16.2.1-172.16.2.63
+    Number of usable hosts : 2^6-2 = 64-2 = 62
+
+3. Problem Statement
+Your company has a /24 network (192.168.50.0/24) assigned to the QA environment. Over the years, many test servers were added and now you’re running out of IPs. The QA team reports that they need 40 more servers but the subnet is already full.
+How do you solve this IP exhaustion problem without disrupting existing servers?
+Would you consider subnetting, super-netting, or migration to a new CIDR? Explain your approach.
+ 
+Here both super-netting and migration to new CIDR requires to assign new IP addresses to the existing QA environment.
+So i think the best way to do it is by making a new subnet with new ip addresses. 
+so for 40, we can choose a subnet like 192.168.50.0/26(62 usable host) or something else if we are gonna expand in the future.
+
+
+
+
+4. Problem Statement
+You’re designing a 3-tier web application with the following requirements:
+Web tier: already has 15 servers running in 192.168.100.0/24.
+App tier: already has 25 servers running in 192.168.101.0/24.
+DB tier: currently has 5 servers in 192.168.102.0/24, but you’ve been told you’ll need to add 20 more DB servers.
+You cannot change the existing allocations for Web and App. How would you adjust or create new subnets to fit the DB tier growth, while keeping the design clean and future-proof?
+ 
+since 192.168.102.0/24 has a total of 254 hosts and only 5 is used we can use the rest of the hosts for the 20 more db servers.
+If we have to allocate more than 254, we can follow the same method as Q3.
+
+
+
+
+5. Problem Statement
+The server at `ec2-18-208-201-86.compute-1.amazonaws.com` is hosting a web application on an unknown port.
+1)Scan the server to determine which port the web application is listening on. Limit your search to the common service ports range (1–1024) to make the process efficient.
+
+$ nmap -p 1–1024 ec2-18-208-201-86.compute-1.amazonaws.com
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-09-12 03:06 UTC
+Nmap scan report for ec2-18-208-201-86.compute-1.amazonaws.com (18.208.201.86)
+Host is up (0.00053s latency).
+Not shown: 997 filtered tcp ports (no-response)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+80/tcp  open  http
+445/tcp open  microsoft-ds
+
+Nmap done: 1 IP address (1 host up) scanned in 4.75 seconds
+
+
+2)After identifying the correct port, verify connectivity by sending a request (for example, using a command-line tool or a browser).
+
+$ curl ec2-18-208-201-86.compute-1.amazonaws.com:80
+Hello world!
+
+
+3)Capture the network traffic during this request and analyze it in a packet inspection tool to study the details of the HTTP communication.
+
+$ traceroute sudo ln -s /Applications/Wireshark.app/Contents/MacOS/Wireshark /usr/local/bin/wireshark
+
+traceroute to ec2-18-208-201-86.compute-1.amazonaws.com (18.208.201.86), 30 hops max, 60 byte packets
+ 1  244.5.6.171 (244.5.6.171)  3.415 ms * *
+
+% sudo tcpdump host ec2-18-208-201-86.compute-1.amazonaws.com 
+tcpdump: data link type PKTAP
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on pktap, link-type PKTAP (Apple DLT_PKTAP), snapshot length 524288 bytes
+10:45:16.457866 IP 192.168.1.11.50496 > ec2-18-208-201-86.compute-1.amazonaws.com.http: Flags [P.], seq 4020474020:4020474608, ack 83950438, win 2055, options [nop,nop,TS val 3138109959 ecr 1344545340], length 588: HTTP: GET / HTTP/1.1
+10:45:16.725068 IP ec2-18-208-201-86.compute-1.amazonaws.com.http > 192.168.1.11.50496: Flags [P.], seq 1:179, ack 588, win 481, options [nop,nop,TS val 1344554144 ecr 3138109959], length 178: HTTP: HTTP/1.1 304 Not Modified
+10:45:16.725242 IP 192.168.1.11.50496 > ec2-18-208-201-86.compute-1.amazonaws.com.http: Flags [.], ack 179, win 2053, options [nop,nop,TS val 3138110226 ecr 1344554144], length 0
+^C
+3 packets captured
+163 packets received by filter
+0 packets dropped by kernel
