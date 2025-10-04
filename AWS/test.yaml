@@ -1,0 +1,269 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+
+  # VPC
+  TharunCfVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  # Subnets
+  TharunCfPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-1a
+      VpcId: !Ref TharunCfVPC
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+
+  TharunCfPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-1b
+      VpcId: !Ref TharunCfVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+
+  TharunCfPrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-1a
+      VpcId: !Ref TharunCfVPC
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: false
+
+  TharunCfPrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-1b
+      VpcId: !Ref TharunCfVPC
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+
+  # Internet Gateway
+  TharunCfInternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  TharunCfAttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref TharunCfVPC
+      InternetGatewayId: !Ref TharunCfInternetGateway
+
+  # Elastic IP for NAT Gateway
+  TharunCfNATEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: TharunCfAttachGateway
+    Properties:
+      Domain: vpc
+
+  # NAT Gateway in Public Subnet
+  TharunCfNATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt TharunCfNATEIP.AllocationId
+      SubnetId: !Ref TharunCfPublicSubnet1
+
+  # Route Tables
+  TharunCfPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref TharunCfVPC
+
+  TharunCfPublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref TharunCfPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref TharunCfInternetGateway
+
+  TharunCfPublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref TharunCfPublicRouteTable
+      SubnetId: !Ref TharunCfPublicSubnet1
+
+  TharunCfPublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref TharunCfPublicRouteTable
+      SubnetId: !Ref TharunCfPublicSubnet2
+
+  # Private Route Table
+  TharunCfPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref TharunCfVPC
+
+  # Route from private to NAT
+  TharunCfPrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref TharunCfPrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref TharunCfNATGateway
+
+  TharunCfPrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref TharunCfPrivateRouteTable
+      SubnetId: !Ref TharunCfPrivateSubnet1
+
+  TharunCfPrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref TharunCfPrivateRouteTable
+      SubnetId: !Ref TharunCfPrivateSubnet2
+
+  # Security Groups
+  TharunCfALBSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ALB SG
+      VpcId: !Ref TharunCfVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  TharunCfEC2SG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EC2 SG
+      VpcId: !Ref TharunCfVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref TharunCfALBSG
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId: !Ref TharunCfBastionSG
+
+  TharunCfBastionSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Bastion SG
+      VpcId: !Ref TharunCfVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  # IAM Role + Instance Profile
+  TharunCfEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+
+  TharunCfEC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref TharunCfEC2Role
+
+  # Bastion host in public subnet
+  TharunCfBastionHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Tharun
+      ImageId: ami-04b70fa74e45c3917  # Ubuntu 22.04 LTS
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref TharunCfPublicSubnet1
+          GroupSet:
+            - !Ref TharunCfBastionSG
+
+  # Load Balancer
+  TharunCfALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !Ref TharunCfPublicSubnet1
+        - !Ref TharunCfPublicSubnet2
+      SecurityGroups:
+        - !Ref TharunCfALBSG
+      Scheme: internet-facing
+      Type: application
+
+  TharunCfALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref TharunCfVPC
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      HealthCheckPath: /
+
+  TharunCfALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref TharunCfALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TharunCfALBTargetGroup
+
+  TharunCfLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: TharunCfLT
+      LaunchTemplateData:
+        InstanceType: t2.micro
+        KeyName: Tharun
+        ImageId: ami-04b70fa74e45c3917
+        SecurityGroupIds:
+          - !Ref TharunCfEC2SG
+        IamInstanceProfile:
+          Name: !Ref TharunCfEC2InstanceProfile
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            sudo apt update -y
+            sudo apt install -y nginx
+            echo "Hello from Ubuntu + Nginx in ASG!" > /var/www/html/index.html
+            systemctl enable nginx
+            systemctl start nginx
+
+  # Auto Scaling Group
+  TharunCfASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref TharunCfPrivateSubnet1
+        - !Ref TharunCfPrivateSubnet2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref TharunCfLaunchTemplate
+        Version: !GetAtt TharunCfLaunchTemplate.LatestVersionNumber
+      MinSize: 1
+      MaxSize: 2
+      DesiredCapacity: 1
+      TargetGroupARNs:
+        - !Ref TharunCfALBTargetGroup
+
+
+Outputs:
+  ALBDNSName:
+    Value: !GetAtt TharunCfALB.DNSName
+    Description: DNS of the Application Load Balancer
+
+  BastionPublicIP:
+    Value: !GetAtt TharunCfBastionHost.PublicIp
+    Description: Public IP to SSH into Bastion host
